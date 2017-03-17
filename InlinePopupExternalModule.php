@@ -63,7 +63,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		if(!self::$jsIncluded) {
 			ExternalModules::addResource('js/globals.js');
 
-			echo "Start len: ".strlen(__DIR__)." small size: ".strlen(dirname(dirname(__DIR__)))."<br />";
+//			echo "Start len: ".strlen(__DIR__)." small size: ".strlen(dirname(dirname(__DIR__)))."<br />";
 
 			$moduleFolder = substr(__DIR__,strlen(dirname(dirname(__DIR__))));
 			$moduleUrl = APP_PATH_WEBROOT_FULL."/".$moduleFolder;
