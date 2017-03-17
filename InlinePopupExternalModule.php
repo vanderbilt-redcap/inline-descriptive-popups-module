@@ -16,7 +16,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 		$projectSettings = ExternalModules::getProjectSettingsAsArray($this->PREFIX,$project_id);
 
-		var_dump($projectSettings);
+//		var_dump($projectSettings);
 
 		echo '<div style="display:none" id="popupDisplayModal"></div>';
 
@@ -32,7 +32,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 		$projectSettings = ExternalModules::getProjectSettingsAsArray($this->PREFIX,$project_id);
 
-		var_dump($projectSettings);
+//		var_dump($projectSettings);
 
 		echo '<div style="display:none" id="popupDisplayModal"></div>';
 
