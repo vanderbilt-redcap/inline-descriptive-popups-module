@@ -36,31 +36,24 @@ $(document).ready(function() {
 			var linkText = oldHtml.substr(location[0],location[1]);
 			var oldHtml = oldHtml.substr(location[0] + location[1]);
 
-			var newHtml = startText + '<a class="popupText" hoverText="' + text + '">' + linkText + '</a>' + oldHtml;
+			var newHtml = startText + '<a class="popupText" style="cursor:default" hoverText="' + text + '">' + linkText + '</a>' + oldHtml;
 
 			labelSelector.html(newHtml);
 		}
 	}
 
-	$('.popupText').click(function() {
+	$('.popupText').hover(function() {
 		var hoverText = $(this).attr('hoverText');
 
-		//alert(hoverText);
-
-		$('#popupDisplayModal').html(hoverText).dialog({
-			modal: false,
-			width: (isMobileDevice ? $(window).width() : 500),
-			buttons: {
-				Okay: function() { $(this).dialog('close'); }
-			},
-			closeOnEscape: true,
-			position: {
-				my: "left center",
-				at: "right center",
-				of: $(this)
-			}
-		}).onblur(function() {
-			$(this).dialog('close');
+		$('#popupDisplayModal').html("<div class='ui-widget ui-dialog ui-widget-content ui-corner-all ui-front' " +
+						"style='width:200px;min-height:50px;padding:10px;margin-left:2px'>" + hoverText + "</div>")
+				.show()
+				.position({my:"left center",at:"right top",of: $(this)
 		});
+	}, function() {
+		$('#popupDisplayModal').html("").hide();
 	});
+
+	// Make this onHover instead of click and make it just an empty box
+	// instead of using the dialog setup with a header and button
 });
