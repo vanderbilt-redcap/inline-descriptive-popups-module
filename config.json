@@ -1,6 +1,13 @@
 {
 	"name": "Inline Descriptive Pop-ups",
 
+	"authors": [
+		{
+			"name": "Kyle McGuffin",
+			"email": "kyle.mcguffin@vanderbilt.edu"
+		}
+	],
+	
 	"permissions": [
 		"hook_data_entry_form",
 		"hook_survey_page"
