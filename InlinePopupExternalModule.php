@@ -17,7 +17,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	function hook_survey_page($project_id) {
 		?>
 		<style>
-			a[tooltip]:hover{
+			a[popup]:hover{
 				font-size: 14px;
 			}
 		</style>
@@ -47,7 +47,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				text-align: left;
 			}
 
-			a[tooltip]{
+			a[popup]{
 				cursor: pointer;
 			}
 		</style>
@@ -76,7 +76,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 								return
 							}
 
-							label.html(label.html().replace(/<?=preg_quote($linkText)?>/g, "<a tooltip='<?=$number?>'>" + <?=json_encode($linkText)?> + "</a>"))
+							label.html(label.html().replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>'>" + <?=json_encode($linkText)?> + "</a>"))
 						})
 					})
 				</script>
@@ -90,9 +90,9 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		<script>
 			$(function(){
 				// The Tippy calls cannot be inside the same loop as the replace calls, because replacing elements undoes any previous Tippy calls.
-				$('a[tooltip]').each(function() {
+				$('a[popup]').each(function() {
 					new Tippy(this, {
-						html: 'popup-content-' + $(this).attr('tooltip'),
+						html: 'popup-content-' + $(this).attr('popup'),
 						trigger: 'mouseenter',
 	//					trigger: 'click',
 						theme: 'light',
