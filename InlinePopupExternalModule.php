@@ -15,6 +15,14 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	}
 
 	function hook_survey_page($project_id) {
+		?>
+		<style>
+			a[tooltip]:hover{
+				font-size: 14px;
+			}
+		</style>
+		<?php
+
 		$this->includeSharedCode($project_id, 'on-surveys');
 	}
 
