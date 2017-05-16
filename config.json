@@ -7,7 +7,7 @@
 			"email": "kyle.mcguffin@vanderbilt.edu"
 		}
 	],
-	
+
 	"permissions": [
 		"hook_data_entry_form",
 		"hook_survey_page"
@@ -23,21 +23,15 @@
 			"repeatable" : true,
 			"sub_settings" : [
 				{
-					"key" : "name",
-					"name" : "Field Name",
-					"type" : "field-list"
+					"key" : "link-text",
+					"name" : "Link Text",
+					"type" : "text"
 				},
 
 				{
 					"key" : "text",
 					"name" : "Pop-up Text",
-					"type" : "note"
-				},
-
-				{
-					"key" : "location",
-					"name" : "Link Location",
-					"type" : "text"
+					"type" : "textarea"
 				},
 
 				{
