@@ -68,16 +68,17 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				<div id="popup-content-<?=$number?>" style="display: none"><?=$text?></div>
 				<script>
 					$(function(){
-						$('.labelrc').each(function(){
-							var label = $(this)
+						var walker = document.createTreeWalker($('#form')[0])
 
-							if(label.closest('tr.surveysubmit').length != 0){
-								// Don't replace the survey buttons (they might have associated event handlers).
-								return
+						var node
+						while(node = walker.nextNode()){
+							if(node.nodeType == 3 && node.parentElement.nodeName != 'SCRIPT' && node.textContent.trim() != ''){
+								var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>'>" + <?=json_encode($linkText)?> + "</a>");
+								if(newContent != node.textContent){
+									$(node).replaceWith($('<span>' + newContent + '<span>'))
+								}
 							}
-
-							label.html(label.html().replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>'>" + <?=json_encode($linkText)?> + "</a>"))
-						})
+						}
 					})
 				</script>
 				<?php
@@ -89,7 +90,6 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		?>
 		<script>
 			$(function(){
-				// The Tippy calls cannot be inside the same loop as the replace calls, because replacing elements undoes any previous Tippy calls.
 				$('a[popup]').each(function() {
 					new Tippy(this, {
 						html: 'popup-content-' + $(this).attr('popup'),
