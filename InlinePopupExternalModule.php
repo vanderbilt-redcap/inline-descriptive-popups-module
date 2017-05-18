@@ -15,14 +15,6 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	}
 
 	function hook_survey_page($project_id) {
-		?>
-		<style>
-			a[popup]:hover{
-				font-size: 14px;
-			}
-		</style>
-		<?php
-
 		$this->includeSharedCode($project_id, 'on-surveys');
 	}
 
@@ -73,7 +65,10 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						var node
 						while(node = walker.nextNode()){
 							if(node.nodeType == 3 && node.parentElement.nodeName != 'SCRIPT' && node.textContent.trim() != ''){
-								var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>'>" + <?=json_encode($linkText)?> + "</a>");
+								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
+								var fontSize = $(node.parentNode).css('font-size')
+
+								var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>' style='font-size: " + fontSize + "'>" + <?=json_encode($linkText)?> + "</a>");
 								if(newContent != node.textContent){
 									$(node).replaceWith($('<span>' + newContent + '<span>'))
 								}
