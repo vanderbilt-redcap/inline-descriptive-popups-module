@@ -57,7 +57,11 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 			if(!empty($linkText) && !empty($text)) {
 				?>
-				<div id="popup-content-<?=$number?>" style="display: none"><?=$text?></div>
+				<div id="popup-content-<?=$number?>" style="display: none">
+					<?=$text?>
+					<!-- The following div exists to make sure any floated elements at the end of the content are contained within the popup. -->
+					<div style="clear:both"></div>
+				</div>
 				<script>
 					$(function(){
 						var walker = document.createTreeWalker($('#form')[0])

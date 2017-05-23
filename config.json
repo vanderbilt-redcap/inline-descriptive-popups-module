@@ -31,7 +31,7 @@
 				{
 					"key" : "text",
 					"name" : "Pop-up Text",
-					"type" : "textarea"
+					"type" : "rich-text"
 				},
 
 				{
