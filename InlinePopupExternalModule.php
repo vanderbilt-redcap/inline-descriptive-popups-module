@@ -64,18 +64,26 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				</div>
 				<script>
 					$(function(){
-						var walker = document.createTreeWalker($('#form')[0])
+						var nodeIterator = document.createNodeIterator($('#form')[0], NodeFilter.SHOW_TEXT, {
+							acceptNode: function(node) {
+								if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == ''){
+									return NodeFilter.FILTER_REJECT
+								}
+
+								return NodeFilter.FILTER_ACCEPT
+							}
+						})
 
 						var node
-						while(node = walker.nextNode()){
-							if(node.nodeType == 3 && node.parentElement.nodeName != 'SCRIPT' && node.textContent.trim() != ''){
-								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
-								var fontSize = $(node.parentNode).css('font-size')
+						while(node = nodeIterator.nextNode()){
+							// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
+							var fontSize = $(node.parentNode).css('font-size')
 
-								var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>' style='font-size: " + fontSize + "'>" + <?=json_encode($linkText)?> + "</a>");
-								if(newContent != node.textContent){
-									$(node).replaceWith($('<span>' + newContent + '<span>'))
-								}
+							var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>' style='font-size: " + fontSize + "'>" + <?=json_encode($linkText)?> + "</a>");
+							if(newContent != node.textContent){
+								// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
+								$(node).before($('<span>' + newContent + '<span>'))
+								$(node).remove()
 							}
 						}
 					})
