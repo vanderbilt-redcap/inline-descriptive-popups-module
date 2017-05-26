@@ -45,19 +45,29 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		</style>
 		<?php
 
-		$projectSettings = ExternalModules::getProjectSettingsAsArray($this->PREFIX,$project_id);
+		$linkTexts = $this->getProjectSetting('link-text');
+		$texts = $this->getProjectSetting('text');
+		$enabledFlags = $this->getProjectSetting($enabledSettingName);
 
-		$number = 1;
-		foreach($projectSettings['link-text']['value'] as $instanceKey => $linkText) {
-			if($projectSettings[$enabledSettingName]['value'][$instanceKey] != 1){
+		// This block can be removed once the repeatable-first-value-arrays branch has been merged.
+		if(!is_array($linkTexts)){
+			$linkTexts = [$linkTexts];
+			$texts = [$texts];
+			$enabledFlags = [$enabledFlags];
+		}
+
+		for($i=0; $i<count($linkTexts); $i++){
+			$linkText = $linkTexts[$i];
+			$text = $texts[$i];
+			$enabledFlag = $enabledFlags[$i];
+
+			if($enabledFlag != 1){
 				continue;
 			}
 
-			$text = $projectSettings['text']['value'][$instanceKey];
-
 			if(!empty($linkText) && !empty($text)) {
 				?>
-				<div id="popup-content-<?=$number?>" style="display: none">
+				<div id="popup-content-<?=$i?>" style="display: none">
 					<?=$text?>
 					<!-- The following div exists to make sure any floated elements at the end of the content are contained within the popup. -->
 					<div style="clear:both"></div>
@@ -79,7 +89,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 							// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 							var fontSize = $(node.parentNode).css('font-size')
 
-							var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$number?>' style='font-size: " + fontSize + "'>" + <?=json_encode($linkText)?> + "</a>");
+							var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$i?>' style='font-size: " + fontSize + "'>" + <?=json_encode($linkText)?> + "</a>");
 							if(newContent != node.textContent){
 								// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
 								$(node).before($('<span>' + newContent + '<span>'))
@@ -90,8 +100,6 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				</script>
 				<?php
 			}
-
-			$number++;
 		}
 
 		?>
