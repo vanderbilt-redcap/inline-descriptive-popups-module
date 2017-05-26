@@ -48,12 +48,14 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		$linkTexts = $this->getProjectSetting('link-text');
 		$texts = $this->getProjectSetting('text');
 		$enabledFlags = $this->getProjectSetting($enabledSettingName);
+		$firstMatchOnlyFlags = $this->getProjectSetting('first-match-only');
 
 		// This block can be removed once the repeatable-first-value-arrays branch has been merged.
 		if(!is_array($linkTexts)){
 			$linkTexts = [$linkTexts];
 			$texts = [$texts];
 			$enabledFlags = [$enabledFlags];
+			$firstMatchOnlyFlags = [$firstMatchOnlyFlags];
 		}
 
 		for($i=0; $i<count($linkTexts); $i++){
@@ -74,6 +76,9 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				</div>
 				<script>
 					$(function(){
+						var linkText = <?=json_encode($linkText)?>;
+						var firstMatchOnly = <?=json_encode($firstMatchOnlyFlags[$i] == 1)?>;
+
 						var nodeIterator = document.createNodeIterator($('#form')[0], NodeFilter.SHOW_TEXT, {
 							acceptNode: function(node) {
 								if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == ''){
@@ -89,11 +94,24 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 							// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 							var fontSize = $(node.parentNode).css('font-size')
 
-							var newContent = node.textContent.replace(/<?=preg_quote($linkText)?>/g, "<a popup='<?=$i?>' style='font-size: " + fontSize + "'>" + <?=json_encode($linkText)?> + "</a>");
+							var findString
+							if(firstMatchOnly){
+								findString = linkText
+							}
+							else{
+								findString = /<?=preg_quote($linkText)?>/g
+							}
+
+							var newContent = node.textContent.replace(findString, "<a popup='<?=$i?>' style='font-size: " + fontSize + "'>" + linkText + "</a>");
 							if(newContent != node.textContent){
 								// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
 								$(node).before($('<span>' + newContent + '<span>'))
 								$(node).remove()
+
+								if(firstMatchOnly){
+									// Break out of the while loop to stop replacing this term.
+									break
+								}
 							}
 						}
 					})

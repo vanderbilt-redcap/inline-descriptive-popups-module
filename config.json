@@ -44,6 +44,12 @@
 					"key" : "on-data-entry-forms",
 					"name" : "Display on data-entry forms",
 					"type" : "checkbox"
+				},
+
+				{
+					"key" : "first-match-only",
+					"name" : "First match only",
+					"type" : "checkbox"
 				}
 			]
 		}
