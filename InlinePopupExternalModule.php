@@ -128,6 +128,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						html: 'popup-content-' + $(this).attr('popup'),
 						trigger: 'mouseenter',
 	//					trigger: 'click',
+						hideOnClick: false,
 						theme: 'light',
 						arrow: true,
 						interactive: true
