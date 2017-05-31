@@ -50,6 +50,12 @@
 					"key" : "first-match-only",
 					"name" : "First match only",
 					"type" : "checkbox"
+				},
+
+				{
+					"key" : "show-pronunciation-audio",
+					"name" : "Show Pronunciation Audio",
+					"type" : "checkbox"
 				}
 			]
 		}

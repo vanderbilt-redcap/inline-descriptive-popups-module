@@ -42,6 +42,17 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			a[popup]{
 				cursor: pointer;
 			}
+
+			.tippy-popper a.pronunciation-audio{
+				border: 1px solid #efdede;
+				border-radius: 15px;
+				padding: 1px 5px;
+				text-decoration: none;
+				display: block;
+				margin-bottom: 2px;
+				background: white;
+				box-shadow: 0px 1px 5px #dedede;
+			}
 		</style>
 		<?php
 
@@ -49,6 +60,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		$texts = $this->getProjectSetting('text');
 		$enabledFlags = $this->getProjectSetting($enabledSettingName);
 		$firstMatchOnlyFlags = $this->getProjectSetting('first-match-only');
+		$audioFlags = $this->getProjectSetting('show-pronunciation-audio');
 
 		// This block can be removed once the repeatable-first-value-arrays branch has been merged.
 		if(!is_array($linkTexts)){
@@ -56,15 +68,21 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$texts = [$texts];
 			$enabledFlags = [$enabledFlags];
 			$firstMatchOnlyFlags = [$firstMatchOnlyFlags];
+			$audioFlags = [$audioFlags];
 		}
 
 		for($i=0; $i<count($linkTexts); $i++){
 			$linkText = $linkTexts[$i];
 			$text = $texts[$i];
 			$enabledFlag = $enabledFlags[$i];
+			$audioFlag = $audioFlags[$i];
 
 			if($enabledFlag != 1){
 				continue;
+			}
+
+			if($audioFlag == 1){
+				$text .= "<div><a href='#' class='pronunciation-audio' data-link-text='" . htmlspecialchars($linkText) . "'>&#x1f50a; Listen</a></div>";
 			}
 
 			if(!empty($linkText) && !empty($text)) {
@@ -132,6 +150,22 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						theme: 'light',
 						arrow: true,
 						interactive: true
+					})
+				})
+
+				$(document).on('click', '.tippy-popper a.pronunciation-audio', function(e){
+					e.preventDefault()
+
+					var linkText = $(this).data('link-text')
+					$.get(<?=json_encode($this->getUrl('get-audio-filename.php'))?> + '&word=' + linkText, function(response){
+						if(response.error){
+							alert(response.error)
+						}
+						else{
+							var filename = response.filename
+							var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
+							$('<audio src="' + url + '">')[0].play()
+						}
 					})
 				})
 			})
