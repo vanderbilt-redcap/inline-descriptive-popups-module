@@ -48,7 +48,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				border-radius: 15px;
 				padding: 1px 5px;
 				text-decoration: none;
-				display: block;
+				display: inline-block;
 				margin-bottom: 2px;
 				background: white;
 				box-shadow: 0px 1px 5px #dedede;
@@ -82,7 +82,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			}
 
 			if($audioFlag == 1){
-				$text .= "<div><a href='#' class='pronunciation-audio' data-link-text='" . htmlspecialchars($linkText) . "'>&#x1f50a; Listen</a></div>";
+				$text .= "<div style='text-align: center'><a href='#' class='pronunciation-audio' data-link-text='" . htmlspecialchars($linkText) . "'>&#x1f50a; Listen</a></div>";
 			}
 
 			if(!empty($linkText) && !empty($text)) {
@@ -145,7 +145,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 					new Tippy(this, {
 						html: 'popup-content-' + $(this).attr('popup'),
 						trigger: 'mouseenter',
-	//					trigger: 'click',
+//						trigger: 'click',
 						hideOnClick: false,
 						theme: 'light',
 						arrow: true,
