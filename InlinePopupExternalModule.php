@@ -82,13 +82,15 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			}
 
 			if($audioFlag == 1){
-				$text .= "<div style='text-align: center'><a href='#' class='pronunciation-audio' data-link-text='" . htmlspecialchars($linkText) . "'>&#x1f50a; Listen</a></div>";
+				$text .= "<div style='text-align: center'><a href='#' class='pronunciation-audio'>&#x1f50a; Listen</a></div>";
 			}
 
 			if(!empty($linkText) && !empty($text)) {
 				?>
-				<div id="popup-content-<?=$i?>" style="display: none">
-					<?=$text?>
+				<div id="inline-popup-content-<?=$i?>" style="display: none">
+					<div class="inline-popup-content-inner" data-link-text='<?=htmlspecialchars($linkText)?>'>
+						<?=$text?>
+					</div>
 					<!-- The following div exists to make sure any floated elements at the end of the content are contained within the popup. -->
 					<div style="clear:both"></div>
 				</div>
@@ -143,7 +145,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$(function(){
 				$('a[popup]').each(function() {
 					new Tippy(this, {
-						html: 'popup-content-' + $(this).attr('popup'),
+						html: 'inline-popup-content-' + $(this).attr('popup'),
 						trigger: 'mouseenter',
 //						trigger: 'click',
 						hideOnClick: false,
@@ -153,20 +155,30 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 					})
 				})
 
-				$(document).on('click', '.tippy-popper a.pronunciation-audio', function(e){
-					e.preventDefault()
+				var listenButtonSelector = '.inline-popup-content-inner a.pronunciation-audio';
+				var filenames = {}
 
-					var linkText = $(this).data('link-text')
+				$(listenButtonSelector).each(function(){
+					var linkText = $(this).closest('.inline-popup-content-inner').data('link-text')
 					$.get(<?=json_encode($this->getUrl('get-audio-filename.php'))?> + '&NOAUTH&word=' + linkText, function(response){
 						if(response.error){
-							alert(response.error)
+							console.log(response.error)
 						}
 						else{
-							var filename = response.filename
-							var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
-							$('<audio src="' + url + '">')[0].play()
+							filenames[linkText] = response.filename
 						}
 					})
+				})
+
+				$(document).on('click', listenButtonSelector, function(e){
+					e.preventDefault()
+
+					var linkText = $(this).closest('.inline-popup-content-inner').data('link-text')
+					var filename = filenames[linkText]
+					if(filename){
+						var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
+						$('<audio src="' + url + '">')[0].play()
+					}
 				})
 			})
 		</script>
