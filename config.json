@@ -15,6 +15,10 @@
 
 	"description": "Allows link style highlights within instructive text, that can pop-up additional information",
 
+	"no-auth-pages": [
+		"get-audio-filename"
+	],
+
 	"project-settings" : [
 		{
 			"key" : "field",

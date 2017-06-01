@@ -157,7 +157,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 					e.preventDefault()
 
 					var linkText = $(this).data('link-text')
-					$.get(<?=json_encode($this->getUrl('get-audio-filename.php'))?> + '&word=' + linkText, function(response){
+					$.get(<?=json_encode($this->getUrl('get-audio-filename.php'))?> + '&NOAUTH&word=' + linkText, function(response){
 						if(response.error){
 							alert(response.error)
 						}
