@@ -4,23 +4,32 @@
 // This could easily be switched to another account (like the datacore email) if need be.
 const API_KEY = '8bb9d0cd-d2ee-4a10-af12-e85a87155390';
 const DICTIONARY_TYPE = 'medical';
+const BACKUP_API_KEY = 'f0898fcd-04a9-44f9-82a3-08af614d31e9';
+const BACKUP_DICTIONARY_TYPE = 'collegiate';
 
 function getResponse($word){
-	$response = simplexml_load_string(file_get_contents("http://www.dictionaryapi.com/api/references/" . urlencode(DICTIONARY_TYPE) . "/v2/xml/" . urlencode($word) . "?key=" . urlencode(API_KEY)));
+	foreach([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
+		$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . urlencode($dictionaryType) . "/v2/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
 
-	$entry = @$response->entry;
-	$wordFromEntry = @$entry->ew;
-	$errorMessage = null;
+		$response = simplexml_load_string(file_get_contents($dictionaryApiLink));
 
-	if(!$wordFromEntry){
-		$errorMessage = "Could not find a matching term for '$word'.  Here is the list of suggestions:\n\n";
+		$entry = @$response->entry;
+		$wordFromEntry = @$entry->ew;
+		$errorMessage = null;
 
-		foreach(@$response->suggestion as $suggestion){
-			$errorMessage .= $suggestion . "\n";
+		if(!$wordFromEntry){
+			$errorMessage = "Could not find a matching term for '$word'.  Here is the list of suggestions:\n\n";
+
+			foreach(@$response->suggestion as $suggestion){
+				$errorMessage .= $suggestion . "\n";
+			}
 		}
-	}
-	else if($entry->ew != $word){
-		$errorMessage = "Could not find an exact match for '$word'.  The closest entry was '{$entry->ew}'.";
+		else if($entry->ew != $word){
+			$errorMessage = "Could not find an exact match for '$word'.  The closest entry was '{$entry->ew}'.";
+		}
+
+		## If a term is found in the medical dictionary, don't bother checking the collegiate dictionary
+		if(!$errorMessage) break;
 	}
 
 	if($errorMessage){
