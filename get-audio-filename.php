@@ -3,13 +3,13 @@
 // This API key it for the account with email mark.mcever@vanderbilt.edu.
 // This could easily be switched to another account (like the datacore email) if need be.
 const API_KEY = '8bb9d0cd-d2ee-4a10-af12-e85a87155390';
-const DICTIONARY_TYPE = 'medical';
+const DICTIONARY_TYPE = 'medical/v2';
 const BACKUP_API_KEY = 'f0898fcd-04a9-44f9-82a3-08af614d31e9';
-const BACKUP_DICTIONARY_TYPE = 'collegiate';
+const BACKUP_DICTIONARY_TYPE = 'collegiate/v1';
 
 function getResponse($word){
 	foreach([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
-		$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . urlencode($dictionaryType) . "/v2/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
+		$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . $dictionaryType . "/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
 
 		$response = simplexml_load_string(file_get_contents($dictionaryApiLink));
 
