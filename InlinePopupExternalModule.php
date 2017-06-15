@@ -99,7 +99,16 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						var linkText = <?=json_encode($linkText)?>;
 						var firstMatchOnly = <?=json_encode($firstMatchOnlyFlags[$i] == 1)?>;
 
-						var nodeIterator = document.createNodeIterator($('#form')[0], NodeFilter.SHOW_TEXT, {
+						var nodeIterator = document.createNodeIterator($('#surveyinstructions')[0], NodeFilter.SHOW_TEXT, {
+							acceptNode: function(node) {
+								if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == ''){
+									return NodeFilter.FILTER_REJECT
+								}
+
+								return NodeFilter.FILTER_ACCEPT
+							}
+						})
+						var nodeIterator2 = document.createNodeIterator($('#form')[0], NodeFilter.SHOW_TEXT, {
 							acceptNode: function(node) {
 								if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == ''){
 									return NodeFilter.FILTER_REJECT
@@ -110,7 +119,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						})
 
 						var node
-						while(node = nodeIterator.nextNode()){
+						while((node = nodeIterator.nextNode()) || (node = nodeIterator2.nextNode())){
 							// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 							var fontSize = $(node.parentNode).css('font-size')
 
