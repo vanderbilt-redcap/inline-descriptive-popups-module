@@ -98,48 +98,52 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 					$(function(){
 						var linkText = <?=json_encode($linkText)?>;
 						var firstMatchOnly = <?=json_encode($firstMatchOnlyFlags[$i] == 1)?>;
+						var searchFields = ["#surveyinstructions","#form"];
+						var nodes = [];
+						var currentItem;
 
-						var nodeIterator = document.createNodeIterator($('#surveyinstructions')[0], NodeFilter.SHOW_TEXT, {
-							acceptNode: function(node) {
-								if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == ''){
-									return NodeFilter.FILTER_REJECT
-								}
+						for(var i = 0; i < searchFields.length; i++) {
+							if(currentItem = $(searchFields[i])[0]) {
+								var nodeIterator = document.createNodeIterator(currentItem, NodeFilter.SHOW_TEXT, {
+									acceptNode: function(node) {
+										if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == '' || !$(node.parentElement).is(":visible")){
+											return NodeFilter.FILTER_REJECT
+										}
 
-								return NodeFilter.FILTER_ACCEPT
+										return NodeFilter.FILTER_ACCEPT
+									}
+								});
+								nodes.push(nodeIterator);
 							}
-						})
-						var nodeIterator2 = document.createNodeIterator($('#form')[0], NodeFilter.SHOW_TEXT, {
-							acceptNode: function(node) {
-								if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == ''){
-									return NodeFilter.FILTER_REJECT
-								}
+						}
 
-								return NodeFilter.FILTER_ACCEPT
-							}
-						})
+						full_node_loop:
+						for(var i = 0; i < nodes.length; i++) {
+							var node;
+							var nodeIterator = nodes[i];
+							console.log(nodeIterator);
+							while(node = nodeIterator.nextNode()){
+								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
+								var fontSize = $(node.parentNode).css('font-size')
 
-						var node
-						while((node = nodeIterator.nextNode()) || (node = nodeIterator2.nextNode())){
-							// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
-							var fontSize = $(node.parentNode).css('font-size')
-
-							var findString
-							if(firstMatchOnly){
-								findString = linkText
-							}
-							else{
-								findString = /<?=preg_quote($linkText)?>/g
-							}
-
-							var newContent = node.textContent.replace(findString, "<a popup='<?=$i?>' style='font-size: " + fontSize + "'>" + linkText + "</a>");
-							if(newContent != node.textContent){
-								// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
-								$(node).before($('<span>' + newContent + '<span>'))
-								$(node).remove()
-
+								var findString
 								if(firstMatchOnly){
-									// Break out of the while loop to stop replacing this term.
-									break
+									findString = linkText
+								}
+								else{
+									findString = /<?=preg_quote($linkText)?>/g
+								}
+
+								var newContent = node.textContent.replace(findString, "<a popup='<?=$i?>' style='font-size: " + fontSize + "'>" + linkText + "</a>");
+								if(newContent != node.textContent){
+									// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
+									$(node).before($('<span>' + newContent + '<span>'))
+									$(node).remove()
+
+									if(firstMatchOnly){
+										// Break out of the while loop to stop replacing this term.
+										break full_node_loop;
+									}
 								}
 							}
 						}
