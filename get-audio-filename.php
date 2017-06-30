@@ -24,9 +24,9 @@ function getResponse($word){
 				$errorMessage .= $suggestion . "\n";
 			}
 		}
-		else if($entry->ew != $word){
-			$errorMessage = "Could not find an exact match for '$word'.  The closest entry was '{$entry->ew}'.";
-		}
+//		else if($entry->ew != $word){
+//			$errorMessage = "Could not find an exact match for '$word'.  The closest entry was '{$entry->ew}'.";
+//		}
 
 		## If a term is found in the medical dictionary, don't bother checking the collegiate dictionary
 		if(!$errorMessage) break;
