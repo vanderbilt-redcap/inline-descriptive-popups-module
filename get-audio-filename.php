@@ -36,7 +36,12 @@ function getResponse($word){
 		$response = ['error' => $errorMessage];
 	}
 	else{
-		$response = ['filename' => $entry->sound->wav->__toString()];
+		if(@$entry->uro->sound) {
+			$response = ['filename' => $entry->uro->sound->wav->__toString()];
+		}
+		else {
+			$response = ['filename' => $entry->sound->wav->__toString()];
+		}
 	}
 
 	return json_encode($response);
@@ -49,7 +54,8 @@ $dir = sys_get_temp_dir() . "/dictionary-audio-url-cache/";
 // We encode the word as an easy way to prevent malicious parameters.
 $path = $dir . md5($word);
 
-if(!file_exists($path)){
+## Cache files for an hour
+if(!file_exists($path) || (time() - filemtime($path) >= 3600)){
 	@mkdir($dir);
 	file_put_contents($path, getResponse($word));
 }
