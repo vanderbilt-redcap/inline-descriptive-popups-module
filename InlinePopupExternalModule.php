@@ -7,7 +7,7 @@
  */
 
 namespace ExternalModules;
-require_once dirname(__FILE__) . '/../../external_modules/classes/ExternalModules.php';
+
 class InlinePopupExternalModule extends AbstractExternalModule {
 
 	function hook_data_entry_form($project_id) {
