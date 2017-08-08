@@ -1,6 +1,8 @@
 {
 	"name": "Inline Descriptive Pop-ups",
 
+	"namespace": "Vanderbilt\\InlinePopupExternalModule",
+
 	"authors": [
 		{
 			"name": "Mark McEver",

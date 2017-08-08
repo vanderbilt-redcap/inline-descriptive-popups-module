@@ -6,7 +6,10 @@
  * Time: 4:39 PM
  */
 
-namespace ExternalModules;
+namespace Vanderbilt\InlinePopupExternalModule;
+
+use ExternalModules\AbstractExternalModule;
+use ExternalModules\ExternalModules;
 
 class InlinePopupExternalModule extends AbstractExternalModule {
 
