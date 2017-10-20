@@ -64,21 +64,14 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		$enabledFlags = $this->getProjectSetting($enabledSettingName);
 		$firstMatchOnlyFlags = $this->getProjectSetting('first-match-only');
 		$audioFlags = $this->getProjectSetting('show-pronunciation-audio');
-
-		// This block can be removed once the repeatable-first-value-arrays branch has been merged.
-		if(!is_array($linkTexts)){
-			$linkTexts = [$linkTexts];
-			$texts = [$texts];
-			$enabledFlags = [$enabledFlags];
-			$firstMatchOnlyFlags = [$firstMatchOnlyFlags];
-			$audioFlags = [$audioFlags];
-		}
+		$oddcastFlags = $this->getProjectSetting('use-oddcast');
 
 		for($i=0; $i<count($linkTexts); $i++){
 			$linkText = $linkTexts[$i];
 			$text = $texts[$i];
 			$enabledFlag = $enabledFlags[$i];
 			$audioFlag = $audioFlags[$i];
+			$oddcastFlag = $oddcastFlags[$i];
 
 			if($enabledFlag != 1){
 				continue;
@@ -91,7 +84,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			if(!empty($linkText) && !empty($text)) {
 				?>
 				<div id="inline-popup-content-<?=$i?>" style="display: none">
-					<div class="inline-popup-content-inner" data-link-text='<?=htmlspecialchars($linkText)?>'>
+					<div class="inline-popup-content-inner" data-link-text='<?=htmlspecialchars($linkText)?>' data-use-oddcast='<?=$oddcastFlag?>'>
 						<?=$text?>
 					</div>
 					<!-- The following div exists to make sure any floated elements at the end of the content are contained within the popup. -->
@@ -124,7 +117,6 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						for(var i = 0; i < nodes.length; i++) {
 							var node;
 							var nodeIterator = nodes[i];
-							console.log(nodeIterator);
 							while(node = nodeIterator.nextNode()){
 								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 								var fontSize = $(node.parentNode).css('font-size')
@@ -189,11 +181,21 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				$(document).on('click', listenButtonSelector, function(e){
 					e.preventDefault()
 
-					var linkText = $(this).closest('.inline-popup-content-inner').data('link-text')
-					var filename = filenames[linkText]
-					if(filename){
-						var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
-						$('<audio src="' + url + '">')[0].play()
+					var popupInner = $(this).closest('.inline-popup-content-inner')
+					var linkText = popupInner.data('link-text')
+					var useOddcast = popupInner.data('use-oddcast')
+
+					if(useOddcast){
+						if(OddcastAvatarExternalModule){
+							OddcastAvatarExternalModule.sayText(linkText)
+						}
+					}
+					else{
+						var filename = filenames[linkText]
+						if(filename){
+							var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
+							$('<audio src="' + url + '">')[0].play()
+						}
 					}
 				})
 			})

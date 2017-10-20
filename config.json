@@ -63,6 +63,12 @@
 					"key" : "show-pronunciation-audio",
 					"name" : "Show Pronunciation Audio",
 					"type" : "checkbox"
+				},
+
+				{
+					"key" : "use-oddcast",
+					"name" : "Use Oddcast (if available)",
+					"type" : "checkbox"
 				}
 			]
 		}
