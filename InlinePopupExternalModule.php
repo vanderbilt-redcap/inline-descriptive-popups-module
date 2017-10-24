@@ -100,15 +100,18 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 						for(var i = 0; i < searchFields.length; i++) {
 							if(currentItem = $(searchFields[i])[0]) {
-								var nodeIterator = document.createNodeIterator(currentItem, NodeFilter.SHOW_TEXT, {
-									acceptNode: function(node) {
-										if(node.parentElement.nodeName == 'SCRIPT' || node.textContent.trim() == '' || !$(node.parentElement).is(":visible")){
+								var nodeIterator = document.createNodeIterator(
+									currentItem,
+									NodeFilter.SHOW_TEXT,
+									function(node) {
+										if(node.parentNode.nodeName == 'SCRIPT' || node.textContent.trim() == '' || !$(node.parentNode).is(":visible")){
 											return NodeFilter.FILTER_REJECT
 										}
 
 										return NodeFilter.FILTER_ACCEPT
-									}
-								});
+									},
+									false  // This argument is required by IE11, but does nothing.
+								);
 								nodes.push(nodeIterator);
 							}
 						}
@@ -194,7 +197,24 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						var filename = filenames[linkText]
 						if(filename){
 							var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
-							$('<audio src="' + url + '">')[0].play()
+
+							// This IE code was copied from here: https://stackoverflow.com/questions/39354085/how-to-play-wav-files-on-ie
+							if(/msie/i.test(navigator.userAgent) || /trident/i.test(navigator.userAgent)){
+								var origPlayer = document.getElementById('currentWavPlayer');
+								if(origPlayer){
+									origPlayer.src = '';
+									origPlayer.outerHtml = '';
+									document.body.removeChild(origPlayer);
+									delete origPlayer;
+								}
+								var newPlayer = document.createElement('bgsound');
+								newPlayer.setAttribute('id', 'currentWavPlayer');
+								newPlayer.setAttribute('src', url);
+								document.body.appendChild(newPlayer);
+							}
+							else{
+								$('<audio src="' + url + '">')[0].play()
+							}
 						}
 					}
 				})
