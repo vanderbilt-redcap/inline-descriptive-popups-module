@@ -67,7 +67,8 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		$oddcastFlags = $this->getProjectSetting('use-oddcast');
 
 		for($i=0; $i<count($linkTexts); $i++){
-			$linkText = $linkTexts[$i];
+			// We make the following lower case so that dictionary requests work properly.
+			$linkText = strtolower($linkTexts[$i]);
 			$text = $texts[$i];
 			$enabledFlag = $enabledFlags[$i];
 			$audioFlag = $audioFlags[$i];
@@ -124,8 +125,8 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 								var fontSize = $(node.parentNode).css('font-size')
 
-								var findString = /([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)/g
-								var replaceString = "$1<a popup='<?=$i?>' style='font-size: " + fontSize + "'>" + linkText + "</a>$3"
+								var findString = /([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)/gi
+								var replaceString = "$1<a popup='<?=$i?>' style='font-size: " + fontSize + "'>$2</a>$3"
 								var newContent = node.textContent.replace(findString, replaceString)
 								if(newContent != node.textContent){
 									// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
