@@ -47,16 +47,22 @@ function getResponse($word){
 		}
 
 		if(!$wav) {
-			return json_encode([
-				'error' => "Could not find audio for the given term.  Please check the response in the browser console in case the filename is in an unexpected location.",
+			returnResponse(json_encode([
+				'error' => "Could not find audio for the term '$word'.  Please check the response in the browser console in case the filename is in an unexpected location.",
 				'response' => $entry
-			]);
+			]));
 		}
 
 		$response = ['filename' => $wav->__toString()];
 	}
 
 	return json_encode($response);
+}
+
+function returnResponse($response){
+	header('Content-type: application/json');
+	echo $response;
+	die();
 }
 
 $word = $_GET['word'];
@@ -72,5 +78,4 @@ if(!file_exists($path) || (time() - filemtime($path) >= 3600)){
 	file_put_contents($path, getResponse($word));
 }
 
-header('Content-type: application/json');
-echo file_get_contents($path);
+returnResponse(file_get_contents($path));

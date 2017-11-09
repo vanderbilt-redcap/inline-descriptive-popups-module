@@ -175,7 +175,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 							console.log(response)
 
 							if(response.error){
-								alert("Error loading audio for term '" + linkText + "': " + response.error)
+								alert(response.error)
 							}
 						}
 					})
