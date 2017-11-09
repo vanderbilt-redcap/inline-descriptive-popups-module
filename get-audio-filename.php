@@ -36,12 +36,17 @@ function getResponse($word){
 		$response = ['error' => $errorMessage];
 	}
 	else{
-		if(@$entry->uro->sound) {
-			$response = ['filename' => $entry->uro->sound->wav->__toString()];
+		$wav = @$entry->vr->sound->wav; // Ex: "dyspnea"
+
+		if(!$wav){
+			$wav = @$entry->uro->sound->wav;
 		}
-		else {
-			$response = ['filename' => $entry->sound->wav->__toString()];
+
+		if(!$wav){
+			$wav = $entry->sound->wav; // Ex: "shampoo"
 		}
+
+		$response = ['filename' => $wav->__toString()];
 	}
 
 	return json_encode($response);
