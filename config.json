@@ -61,13 +61,13 @@
 
 				{
 					"key" : "show-pronunciation-audio",
-					"name" : "Show Pronunciation Audio",
+					"name" : "Show pronunciation audio",
 					"type" : "checkbox"
 				},
 
 				{
 					"key" : "use-oddcast",
-					"name" : "Use Oddcast (if available)",
+					"name" : "Use Avatar if available",
 					"type" : "checkbox"
 				}
 			]
