@@ -165,13 +165,18 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				var filenames = {}
 
 				$(listenButtonSelector).each(function(){
-					var linkText = $(this).closest('.inline-popup-content-inner').data('link-text')
+					var popupInner = $(this).closest('.inline-popup-content-inner')
+					var linkText = popupInner.data('link-text')
 					$.get(<?=json_encode($this->getUrl('get-audio-filename.php'))?> + '&NOAUTH&word=' + linkText, function(response){
-						if(response.error){
-							console.log(response.error)
+						if(response.filename){
+							filenames[linkText] = response.filename
 						}
 						else{
-							filenames[linkText] = response.filename
+							console.log(response)
+
+							if(response.error){
+								alert("Error loading audio for term '" + linkText + "': " + response.error)
+							}
 						}
 					})
 				})

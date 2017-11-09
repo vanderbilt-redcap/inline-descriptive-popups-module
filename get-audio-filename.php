@@ -46,6 +46,13 @@ function getResponse($word){
 			$wav = $entry->sound->wav; // Ex: "shampoo"
 		}
 
+		if(!$wav) {
+			return json_encode([
+				'error' => "Could not find audio for the given term.  Please check the response in the browser console in case the filename is in an unexpected location.",
+				'response' => $entry
+			]);
+		}
+
 		$response = ['filename' => $wav->__toString()];
 	}
 
