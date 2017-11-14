@@ -231,13 +231,15 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	public function validateSettings($settings){
 		$terms = $settings['link-text'];
 		$audioFlags = $settings['show-pronunciation-audio'];
+		$oddcastFlags = $settings['use-oddcast'];
 
 		$errorMessages = [];
 		for($i=0;$i<count($terms);$i++){
 			$term = $terms[$i];
 			$audioFlag = $audioFlags[$i];
+			$oddcastFlag = $oddcastFlags[$i];
 
-			if($audioFlag){
+			if($audioFlag && !$oddcastFlag){
 				$response = json_decode($this->getDictionaryResponse($term), true);
 				$error = @$response['error'];
 				if($error){
