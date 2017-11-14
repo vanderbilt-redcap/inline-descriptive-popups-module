@@ -11,6 +11,13 @@ namespace Vanderbilt\InlinePopupExternalModule;
 use ExternalModules\AbstractExternalModule;
 use ExternalModules\ExternalModules;
 
+// This API key it for the account with email mark.mcever@vanderbilt.edu.
+// This could easily be switched to another account (like the datacore email) if need be.
+const API_KEY = '8bb9d0cd-d2ee-4a10-af12-e85a87155390';
+const DICTIONARY_TYPE = 'medical/v2';
+const BACKUP_API_KEY = 'f0898fcd-04a9-44f9-82a3-08af614d31e9';
+const BACKUP_DICTIONARY_TYPE = 'collegiate/v1';
+
 class InlinePopupExternalModule extends AbstractExternalModule {
 
 	function hook_data_entry_form($project_id) {
@@ -188,10 +195,8 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 					var linkText = popupInner.data('link-text')
 					var useOddcast = popupInner.data('use-oddcast')
 
-					if(useOddcast){
-						if(OddcastAvatarExternalModule){
-							OddcastAvatarExternalModule.sayText(linkText)
-						}
+					if(useOddcast && window.OddcastAvatarExternalModule){
+						OddcastAvatarExternalModule.sayText(linkText)
 					}
 					else{
 						var filename = filenames[linkText]
@@ -221,5 +226,93 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			})
 		</script>
 		<?php
+	}
+
+	public function validateSettings($settings){
+		$terms = $settings['link-text'];
+		$audioFlags = $settings['show-pronunciation-audio'];
+
+		$errorMessages = [];
+		for($i=0;$i<count($terms);$i++){
+			$term = $terms[$i];
+			$audioFlag = $audioFlags[$i];
+
+			if($audioFlag){
+				$response = $this->getDictionaryResponse($term);
+				$error = @$response['error'];
+				if($error){
+					$errorMessages[] = $error;
+				}
+				else{
+					$path = $this->getDictionaryAudioCachePath($term);
+					file_put_contents($path, json_encode($response));
+				}
+			}
+		}
+
+		return implode("\n", $errorMessages);
+	}
+
+	public function getDictionaryResponse($word){
+		foreach([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
+			$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . $dictionaryType . "/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
+
+			$response = simplexml_load_string(file_get_contents($dictionaryApiLink));
+
+			$entry = @$response->entry;
+			$wordFromEntry = @$entry->ew;
+			$errorMessage = null;
+
+			if(!$wordFromEntry){
+				$errorMessage = "Could not find a matching term for '$word'.";
+				$suggestions = @$response->suggestion;
+				if($suggestions){
+					$errorMessage .= "  Here is the list of suggestions:\n\n";
+					foreach($suggestions as $suggestion){
+						$errorMessage .= $suggestion . "\n";
+					}
+				}
+			}
+	//		else if($entry->ew != $word){
+	//			$errorMessage = "Could not find an exact match for '$word'.  The closest entry was '{$entry->ew}'.";
+	//		}
+
+			## If a term is found in the medical dictionary, don't bother checking the collegiate dictionary
+			if(!$errorMessage) break;
+		}
+
+		if($errorMessage){
+			$response = ['error' => $errorMessage];
+		}
+		else{
+			$wav = @$entry->vr->sound->wav; // Ex: "dyspnea"
+
+			if(!$wav){
+				$wav = @$entry->uro->sound->wav;
+			}
+
+			if(!$wav){
+				$wav = $entry->sound->wav; // Ex: "shampoo"
+			}
+
+			if(!$wav) {
+				$response = [
+					'error' => "Could not find audio for the term '$word'.  Please check the response in the browser console in case the filename is in an unexpected location.",
+					'response' => $entry
+				];
+			}
+			else{
+				$response = ['filename' => $wav->__toString()];
+			}
+		}
+
+		return $response;
+	}
+
+	public function getDictionaryAudioCachePath($word){
+		$dir = sys_get_temp_dir() . "/dictionary-audio-url-cache/";
+
+		// We encode the word as an easy way to prevent malicious parameters.
+		return $dir . md5($word);
 	}
 }
