@@ -264,7 +264,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$errorMessage = null;
 
 			if(!$wordFromEntry){
-				$errorMessage = "Could not find a matching term for '$word'.";
+				$errorMessage = "Pronunciation audio for the term '$word' could not be found.";
 				$suggestions = @$response->suggestion;
 				if($suggestions){
 					$errorMessage .= "  Here is the list of suggestions:\n\n";
