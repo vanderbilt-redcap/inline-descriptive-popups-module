@@ -238,14 +238,10 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$audioFlag = $audioFlags[$i];
 
 			if($audioFlag){
-				$response = $this->getDictionaryResponse($term);
+				$response = json_decode($this->getDictionaryResponse($term), true);
 				$error = @$response['error'];
 				if($error){
 					$errorMessages[] = $error;
-				}
-				else{
-					$path = $this->getDictionaryAudioCachePath($term);
-					file_put_contents($path, json_encode($response));
 				}
 			}
 		}
@@ -254,6 +250,14 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	}
 
 	public function getDictionaryResponse($word){
+		$dir = sys_get_temp_dir() . "/dictionary-audio-url-cache/";
+
+		// We encode the word as an easy way to prevent malicious parameters.
+		$path = $dir . md5($word);
+		if(file_exists($path)){
+			return file_get_contents($path);
+		}
+
 		foreach([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
 			$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . $dictionaryType . "/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
 
@@ -306,13 +310,10 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			}
 		}
 
+		$response = json_encode($response);
+		
+		file_put_contents($path, $response);
+
 		return $response;
-	}
-
-	public function getDictionaryAudioCachePath($word){
-		$dir = sys_get_temp_dir() . "/dictionary-audio-url-cache/";
-
-		// We encode the word as an easy way to prevent malicious parameters.
-		return $dir . md5($word);
 	}
 }
