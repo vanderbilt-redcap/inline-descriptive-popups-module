@@ -67,10 +67,15 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 			.tippy-tooltip.inline-popups-theme {
 				background-color: #f5f6f7;
+				box-shadow: 0 0px 50px 6px rgba(36, 40, 47, 0.21);
 			}
 
 			.tippy-popper[x-placement^=top] .tippy-tooltip.inline-popups-theme .tippy-arrow{
 				border-top: 7px solid #f5f6f7;
+			}
+
+			.tippy-popper[x-placement^=bottom] .tippy-tooltip.inline-popups-theme .tippy-arrow{
+				border-bottom: 7px solid #f5f6f7;
 			}
 		</style>
 		<?php
