@@ -204,7 +204,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 					var linkText = popupInner.data('link-text')
 					var useOddcast = popupInner.data('use-oddcast')
 
-					if(useOddcast && window.OddcastAvatarExternalModule){
+					if(useOddcast && window.OddcastAvatarExternalModule && OddcastAvatarExternalModule.isEnabled()){
 						OddcastAvatarExternalModule.sayText(linkText)
 					}
 					else{
