@@ -30,8 +30,9 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 	function includeSharedCode($project_id, $enabledSettingName) {
 		?>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/0.3.0/tippy.css" integrity="sha256-s2OFSYvBLhc6NZMWLBpEmjCS9bI27OoN1ckY1z7Z/3w=" crossorigin="anonymous" />
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/0.3.0/tippy.js" integrity="sha256-eW1TBvNkruqAr5vlt8AwpDDHmoCSq8yfxIpveZ+LO9o=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/tippy.css" integrity="sha384-wSlyG10EXV8zWqE9v9lzWCfOPiVQB5p5/9xT/zfpYn4yxqLooKBko44huGddKjAT" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/themes/light.css" integrity="sha384-L67GFzFvXzI/emFX7zfRPrrglAGTl08iybyk/gP2LdDEaY77xQ2GwBjiUglPhEQw" crossorigin="anonymous">
+		<script src="https://unpkg.com/tippy.js@2.2.2/dist/tippy.all.min.js" integrity="sha384-PZHY4QRH2Yg34/USJTSmg+oXlrrxxxOHITDLz+TERu3KS9JbUpnsp0JrhT/F1Hmc" crossorigin="anonymous"></script>
 
 		<style>
 			.tippy-popper{
@@ -62,6 +63,14 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				margin-bottom: 2px;
 				background: white;
 				box-shadow: 0px 1px 5px #dedede;
+			}
+
+			.tippy-tooltip.inline-popups-theme {
+				background-color: #f5f6f7;
+			}
+
+			.tippy-popper[x-placement^=top] .tippy-tooltip.inline-popups-theme .tippy-arrow{
+				border-top: 7px solid #f5f6f7;
 			}
 		</style>
 		<?php
@@ -157,12 +166,12 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		<script>
 			$(function(){
 				$('a[popup]').each(function() {
-					new Tippy(this, {
-						html: 'inline-popup-content-' + $(this).attr('popup'),
+					tippy(this, {
+						html: '#inline-popup-content-' + $(this).attr('popup'),
 						trigger: 'mouseenter',
 //						trigger: 'click',
 						hideOnClick: false,
-						theme: 'light',
+						theme: 'light inline-popups',
 						arrow: true,
 						interactive: true
 					})
