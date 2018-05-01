@@ -194,10 +194,6 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						}
 						else{
 							console.log(response)
-
-							if(response.error){
-								alert(response.error)
-							}
 						}
 					})
 				})
@@ -234,6 +230,9 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 							else{
 								$('<audio src="' + url + '">')[0].play()
 							}
+						}
+						else{
+							alert("The audio could not be played.  Please report this issue and/or check the console log for errors.")
 						}
 					}
 				})
