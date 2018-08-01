@@ -29,6 +29,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	}
 
 	function includeSharedCode($project_id, $enabledSettingName) {
+		$this->initializeJavascriptModuleObject();
 		?>
 		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/tippy.css" integrity="sha384-wSlyG10EXV8zWqE9v9lzWCfOPiVQB5p5/9xT/zfpYn4yxqLooKBko44huGddKjAT" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/themes/light.css" integrity="sha384-L67GFzFvXzI/emFX7zfRPrrglAGTl08iybyk/gP2LdDEaY77xQ2GwBjiUglPhEQw" crossorigin="anonymous">
@@ -114,7 +115,6 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				</div>
 				<script>
 					$(function(){
-						var linkText = <?=json_encode($linkText)?>;
 						var firstMatchOnly = <?=json_encode($firstMatchOnlyFlags[$i] == 1)?>;
 						var searchFields = ["#surveyinstructions","#form"];
 						var nodes = [];
@@ -150,7 +150,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 								var fontSize = $(node.parentNode).css('font-size')
 
 								var findString = /([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)/gi
-								var replaceString = "$1<a popup='<?=$i?>' style='font-size: " + fontSize + "'>$2</a>$3"
+								var replaceString = "$1<a popup='<?=$i?>' data-link-text='<?=htmlspecialchars($linkText)?>' style='font-size: " + fontSize + "'>$2</a>$3"
 								var newContent = node.textContent.replace(findString, replaceString)
 								if(newContent != node.textContent){
 									// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
@@ -173,15 +173,36 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		?>
 		<script>
 			$(function(){
-				$('a[popup]').each(function() {
-					tippy(this, {
+				var log = function(message, linkText, popupIndex){
+					var data = {
+						'link text': linkText
+					}
+
+					if(popupIndex !== undefined){
+						data['popup index'] = popupIndex
+					}
+
+					ExternalModules.Vanderbilt.InlinePopupExternalModule.log(message, data)
+				}
+
+				$('a[popup]').each(function(popupIndex) {
+					var link = this
+					var linkText = $(link).data('link-text')
+
+					tippy(link, {
 						html: '#inline-popup-content-' + $(this).attr('popup'),
 						trigger: 'mouseenter',
 //						trigger: 'click',
 						hideOnClick: false,
 						theme: 'light inline-popups',
 						arrow: true,
-						interactive: true
+						interactive: true,
+						onShow: function(){
+							log('popup opened', linkText, popupIndex)
+						},
+						onHide: function(){
+							log('popup closed', linkText, popupIndex)
+						}
 					})
 				})
 
@@ -207,6 +228,8 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 					var popupInner = $(this).closest('.inline-popup-content-inner')
 					var linkText = popupInner.data('link-text')
 					var useOddcast = popupInner.data('use-oddcast')
+
+					log('listen button clicked', linkText)
 
 					if(useOddcast && window.OddcastAvatarExternalModule && OddcastAvatarExternalModule.isEnabled()){
 						OddcastAvatarExternalModule.sayText(linkText)
