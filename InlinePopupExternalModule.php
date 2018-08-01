@@ -126,7 +126,10 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 									currentItem,
 									NodeFilter.SHOW_TEXT,
 									function(node) {
-										if(node.parentNode.nodeName == 'SCRIPT' || node.textContent.trim() == '' || !$(node.parentNode).is(":visible")){
+										// We don't always want to reject hidden elements because they may appear later due to branching logic.
+										var firstMatchOnlyAndVisible = firstMatchOnly && !$(node.parentNode).is(":visible")
+
+										if(node.parentNode.nodeName == 'SCRIPT' || node.textContent.trim() == '' || firstMatchOnlyAndVisible){
 											return NodeFilter.FILTER_REJECT
 										}
 
