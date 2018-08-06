@@ -29,7 +29,11 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	}
 
 	function includeSharedCode($project_id, $enabledSettingName) {
-		$this->initializeJavascriptModuleObject();
+		$initializeJavascriptMethodName = 'initializeJavascriptModuleObject';
+		$loggingSupported = method_exists($this, $initializeJavascriptMethodName);
+		if($loggingSupported){
+			$this->{$initializeJavascriptMethodName}();
+		}
 		?>
 		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/tippy.css" integrity="sha384-wSlyG10EXV8zWqE9v9lzWCfOPiVQB5p5/9xT/zfpYn4yxqLooKBko44huGddKjAT" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/themes/light.css" integrity="sha384-L67GFzFvXzI/emFX7zfRPrrglAGTl08iybyk/gP2LdDEaY77xQ2GwBjiUglPhEQw" crossorigin="anonymous">
@@ -182,7 +186,9 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						data['popup index'] = popupIndex
 					}
 
-					ExternalModules.Vanderbilt.InlinePopupExternalModule.log(message, data)
+					if(<?=json_encode($loggingSupported)?>){
+						ExternalModules.Vanderbilt.InlinePopupExternalModule.log(message, data)
+					}
 				}
 
 				$('a[popup]').each(function(popupIndex) {
