@@ -150,7 +150,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 								var fontSize = $(node.parentNode).css('font-size')
 
 								var findString = /([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)/gi
-								var replaceString = "$1<a popup='<?=$i?>' data-link-text='<?=htmlspecialchars($linkText)?>' style='font-size: " + fontSize + "'>$2</a>$3"
+								var replaceString = "$1<a popup='<?=$i?>' href='javascript:void(0)' data-link-text='<?=htmlspecialchars($linkText)?>' style='font-size: " + fontSize + "'>$2</a>$3"
 								var newContent = node.textContent.replace(findString, replaceString)
 								if(newContent != node.textContent){
 									// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
