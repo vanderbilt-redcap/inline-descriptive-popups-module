@@ -85,20 +85,17 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		</style>
 		<?php
 
-		$linkTexts = $this->getProjectSetting('link-text');
-		$texts = $this->getProjectSetting('text');
-		$enabledFlags = $this->getProjectSetting($enabledSettingName);
-		$firstMatchOnlyFlags = $this->getProjectSetting('first-match-only');
-		$audioFlags = $this->getProjectSetting('show-pronunciation-audio');
-		$oddcastFlags = $this->getProjectSetting('use-oddcast');
+		$subSettings = $this->getSubSettings('field');
+		for($i=0; $i<count($subSettings); $i++){
+			$linkSettings = $subSettings[$i];
 
-		for($i=0; $i<count($linkTexts); $i++){
 			// We make the following lower case so that dictionary requests work properly.
-			$linkText = strtolower($linkTexts[$i]);
-			$text = $texts[$i];
-			$enabledFlag = $enabledFlags[$i];
-			$audioFlag = $audioFlags[$i];
-			$oddcastFlag = $oddcastFlags[$i];
+			$linkText = strtolower($linkSettings['link-text']);
+			$text = $linkSettings['text'];
+			$enabledFlag = $linkSettings[$enabledSettingName];
+			$firstMatchOnlyFlag = $linkSettings['first-match-only'];
+			$audioFlag = $linkSettings['show-pronunciation-audio'];
+			$oddcastFlag = $linkSettings['use-oddcast'];
 
 			if($enabledFlag != 1){
 				continue;
@@ -119,7 +116,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				</div>
 				<script>
 					$(function(){
-						var firstMatchOnly = <?=json_encode($firstMatchOnlyFlags[$i] == 1)?>;
+						var firstMatchOnly = <?=json_encode($firstMatchOnlyFlag == 1)?>;
 						var searchFields = ["#surveyinstructions","#form"];
 						var nodes = [];
 						var currentItem;
