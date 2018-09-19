@@ -170,7 +170,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 									$(node).remove()
 
 									if(firstMatchOnly){
-										// Break out of the while loop to stop replacing this term.
+										// Break out of the outer loop to stop replacing this term.
 										break full_node_loop;
 									}
 								}
