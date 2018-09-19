@@ -20,15 +20,15 @@ const BACKUP_DICTIONARY_TYPE = 'collegiate/v1';
 
 class InlinePopupExternalModule extends AbstractExternalModule {
 
-	function hook_data_entry_form($project_id) {
-		$this->includeSharedCode($project_id, 'on-data-entry-forms');
+	function hook_data_entry_form($project_id, $record, $instrument) {
+		$this->includeSharedCode($project_id, $record, $instrument, 'on-data-entry-forms');
 	}
 
-	function hook_survey_page($project_id) {
-		$this->includeSharedCode($project_id, 'on-surveys');
+	function hook_survey_page($project_id, $record, $instrument) {
+		$this->includeSharedCode($project_id, $record, $instrument, 'on-surveys');
 	}
 
-	function includeSharedCode($project_id, $enabledSettingName) {
+	function includeSharedCode($project_id, $record, $instrument, $enabledSettingName) {
 		$initializeJavascriptMethodName = 'initializeJavascriptModuleObject';
 		$loggingSupported = method_exists($this, $initializeJavascriptMethodName);
 		if($loggingSupported){
@@ -96,8 +96,19 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$firstMatchOnlyFlag = $linkSettings['first-match-only'];
 			$audioFlag = $linkSettings['show-pronunciation-audio'];
 			$oddcastFlag = $linkSettings['use-oddcast'];
+			$forms = $linkSettings['forms'];
+			$pageNumbers = $linkSettings['page-numbers'];
 
-			if($enabledFlag != 1){
+			// Remove the empty string default values.
+			$forms = array_filter($forms);
+			$pageNumbers = array_filter($pageNumbers);
+
+			$currentPageNumber = $_GET['__page__'];
+
+			$matchesForm = empty($forms) || in_array($instrument, $forms);
+			$matchesPageNumber = empty($pageNumbers) || in_array($currentPageNumber, $pageNumbers);
+
+			if($enabledFlag != 1 || !$matchesForm || !$matchesPageNumber){
 				continue;
 			}
 

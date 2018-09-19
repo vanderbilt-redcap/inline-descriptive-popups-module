@@ -69,6 +69,20 @@
 					"key" : "use-oddcast",
 					"name" : "Use Avatar if available",
 					"type" : "checkbox"
+				},
+
+				{
+					"key" : "forms",
+					"name" : "<b>Forms</b> - Only enable this popup on certain forms",
+					"type" : "form-list",
+					"repeatable": true
+				},
+
+				{
+					"key" : "page-numbers",
+					"name" : "<b>Page Numbers</b> - Only enable this popup on certain pages",
+					"type" : "text",
+					"repeatable": true
 				}
 			]
 		}
