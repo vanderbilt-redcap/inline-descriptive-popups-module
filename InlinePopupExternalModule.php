@@ -159,6 +159,11 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 							var node;
 							var nodeIterator = nodes[i];
 							while(node = nodeIterator.nextNode()){
+								if(node.parentNode.tagName === 'A'){
+									// Do not modify matching terms inside existing links.
+									continue
+								}
+
 								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 								var fontSize = $(node.parentNode).css('font-size')
 
