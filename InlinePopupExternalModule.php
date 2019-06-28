@@ -85,6 +85,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		</style>
 		<?php
 
+		$linkColor = $this->getProjectSetting('link-color');
 		$subSettings = $this->getSubSettings('field');
 		for($i=0; $i<count($subSettings); $i++){
 			$linkSettings = $subSettings[$i];
@@ -161,8 +162,14 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 								var fontSize = $(node.parentNode).css('font-size')
 
+								var style = 'font-size: ' + fontSize
+
+								<?php if(!empty($linkColor)) { ?>
+									style += '; color: <?=$linkColor?>'
+								<?php } ?>
+
 								var findString = /([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)/gi
-								var replaceString = "$1<a popup='<?=$i?>' href='javascript:void(0)' data-link-text='<?=htmlspecialchars($linkText)?>' style='font-size: " + fontSize + "'>$2</a>$3"
+								var replaceString = "$1<a popup='<?=$i?>' href='javascript:void(0)' data-link-text='<?=htmlspecialchars($linkText)?>' style='" + style + "'>$2</a>$3"
 								var newContent = node.textContent.replace(findString, replaceString)
 								if(newContent != node.textContent){
 									// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.

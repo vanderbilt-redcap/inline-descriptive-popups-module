@@ -24,6 +24,11 @@
 
 	"project-settings" : [
 		{
+			"key" : "link-color",
+			"name" : "<div style='display: inline-block; max-width: 300px'><b>Link Color</b> - In newer REDCap versions a color picker will display here.  In older versions you can enter HTML color codes manually.  Any color picker website like <a href='https://color.hailpixel.com/' target='_blank' style='text-decoration: underline'>this one</a> can be used to find color codes.</div>",
+			"type" : "color-picker"
+		},
+		{
 			"key" : "field",
 			"name" : "Pop-up Field",
 			"type" : "sub_settings",
