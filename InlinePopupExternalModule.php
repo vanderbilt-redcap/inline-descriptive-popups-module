@@ -280,7 +280,9 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 								document.body.appendChild(newPlayer);
 							}
 							else{
-								$('<audio src="' + url + '">')[0].play()
+								var audio = $('<audio src="' + url + '">')
+								$('body').append(audio) // Chrome seems to require the element to be added to the DOM before we can play it.
+								audio[0].play()
 							}
 						}
 						else{
