@@ -173,7 +173,13 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 									style += '; color: <?=$linkColor?>'
 								<?php } ?>
 
-								var findString = /([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)/gi
+								var flags = "i"
+								if(!firstMatchOnly){
+									flags += 'g'
+								}
+
+								var findString = new RegExp("([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)", flags)
+
 								var replaceString = "$1<a popup='<?=$i?>' href='javascript:void(0)' data-link-text='<?=htmlspecialchars($linkText)?>' style='" + style + "'>$2</a>$3"
 								var newContent = node.textContent.replace(findString, replaceString)
 								if(newContent != node.textContent){
