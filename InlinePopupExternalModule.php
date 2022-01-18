@@ -154,16 +154,26 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 							}
 						}
 
+						var shouldSkip = function(node){
+							var parent = node.parentNode
+							if(parent === null){
+								// We've reached past the root document node
+								return false
+							}
+							else if(['A', 'TEXTAREA'].indexOf(parent.tagName) !== -1){
+								// Do not modify matching terms inside certain HTMl tags
+								return true
+							}
+							else{
+								return shouldSkip(parent)
+							}
+						}
+
 						full_node_loop:
 						for(var i = 0; i < nodes.length; i++) {
 							var node;
 							var nodeIterator = nodes[i];
 							while(node = nodeIterator.nextNode()){
-								if(node.parentNode.tagName === 'A'){
-									// Do not modify matching terms inside existing links.
-									continue
-								}
-
 								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
 								var fontSize = $(node.parentNode).css('font-size')
 
@@ -182,7 +192,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 								var replaceString = "$1<a popup='<?=$i?>' href='javascript:void(0)' data-link-text='<?=htmlspecialchars($linkText)?>' style='" + style + "'>$2</a>$3"
 								var newContent = node.textContent.replace(findString, replaceString)
-								if(newContent != node.textContent){
+								if(newContent != node.textContent && !shouldSkip(node)){
 									// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
 									$(node).before($('<span>' + newContent + '<span>'))
 									$(node).remove()
