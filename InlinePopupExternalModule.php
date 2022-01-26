@@ -29,11 +29,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	}
 
 	function includeSharedCode($project_id, $record, $instrument, $enabledSettingName) {
-		$initializeJavascriptMethodName = 'initializeJavascriptModuleObject';
-		$loggingSupported = method_exists($this, $initializeJavascriptMethodName);
-		if($loggingSupported){
-			$this->{$initializeJavascriptMethodName}();
-		}
+		$this->initializeJavascriptModuleObject();
 		?>
 		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/tippy.css" integrity="sha384-wSlyG10EXV8zWqE9v9lzWCfOPiVQB5p5/9xT/zfpYn4yxqLooKBko44huGddKjAT" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/themes/light.css" integrity="sha384-L67GFzFvXzI/emFX7zfRPrrglAGTl08iybyk/gP2LdDEaY77xQ2GwBjiUglPhEQw" crossorigin="anonymous">
@@ -83,6 +79,28 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				border-bottom: 7px solid #f5f6f7;
 			}
 		</style>
+		<script>
+			$(function(){
+				var module = <?=$this->framework->getJavascriptModuleObjectName()?>;
+				module.initializers = []
+				module.afterMultiLanguageInitialized = function(action){
+					if(
+						window.REDCap === undefined
+						||
+						REDCap.MultiLanguage === undefined
+						||
+						REDCap.MultiLanguage.initialized
+					){
+						action()
+					}
+					else{
+						setTimeout(function(){
+							module.afterMultiLanguageInitialized(action)
+						}, 100)
+					}
+				}
+			})
+		</script>
 		<?php
 
 		$linkColor = $this->getProjectSetting('link-color');
@@ -128,82 +146,85 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 				</div>
 				<script>
 					$(function(){
-						var firstMatchOnly = <?=json_encode($firstMatchOnlyFlag == 1)?>;
-						var searchFields = ["#surveyinstructions","#form"];
-						var nodes = [];
-						var currentItem;
+						var module = <?=$this->framework->getJavascriptModuleObjectName()?>;
+						module.initializers.push(function(){
+							var firstMatchOnly = <?=json_encode($firstMatchOnlyFlag == 1)?>;
+							var searchFields = ["#surveyinstructions","#form"];
+							var nodes = [];
+							var currentItem;
 
-						for(var i = 0; i < searchFields.length; i++) {
-							if(currentItem = $(searchFields[i])[0]) {
-								var nodeIterator = document.createNodeIterator(
-									currentItem,
-									NodeFilter.SHOW_TEXT,
-									function(node) {
-										// We don't always want to reject hidden elements because they may appear later due to branching logic.
-										var firstMatchOnlyAndInvisible = firstMatchOnly && !$(node.parentNode).is(":visible")
+							for(var i = 0; i < searchFields.length; i++) {
+								if(currentItem = $(searchFields[i])[0]) {
+									var nodeIterator = document.createNodeIterator(
+										currentItem,
+										NodeFilter.SHOW_TEXT,
+										function(node) {
+											// We don't always want to reject hidden elements because they may appear later due to branching logic.
+											var firstMatchOnlyAndInvisible = firstMatchOnly && !$(node.parentNode).is(":visible")
 
-										if(node.parentNode.nodeName == 'SCRIPT' || node.textContent.trim() == '' || firstMatchOnlyAndInvisible){
-											return NodeFilter.FILTER_REJECT
-										}
+											if(node.parentNode.nodeName == 'SCRIPT' || node.textContent.trim() == '' || firstMatchOnlyAndInvisible){
+												return NodeFilter.FILTER_REJECT
+											}
 
-										return NodeFilter.FILTER_ACCEPT
-									},
-									false  // This argument is required by IE11, but does nothing.
-								);
-								nodes.push(nodeIterator);
-							}
-						}
-
-						var shouldSkip = function(node){
-							var parent = node.parentNode
-							if(parent === null){
-								// We've reached past the root document node
-								return false
-							}
-							else if(['A', 'TEXTAREA'].indexOf(parent.tagName) !== -1){
-								// Do not modify matching terms inside certain HTMl tags
-								return true
-							}
-							else{
-								return shouldSkip(parent)
-							}
-						}
-
-						full_node_loop:
-						for(var i = 0; i < nodes.length; i++) {
-							var node;
-							var nodeIterator = nodes[i];
-							while(node = nodeIterator.nextNode()){
-								// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
-								var fontSize = $(node.parentNode).css('font-size')
-
-								var style = 'font-size: ' + fontSize
-
-								<?php if(!empty($linkColor)) { ?>
-									style += '; color: <?=$linkColor?>'
-								<?php } ?>
-
-								var flags = "i"
-								if(!firstMatchOnly){
-									flags += 'g'
+											return NodeFilter.FILTER_ACCEPT
+										},
+										false  // This argument is required by IE11, but does nothing.
+									);
+									nodes.push(nodeIterator);
 								}
+							}
 
-								var findString = new RegExp("([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)", flags)
+							var shouldSkip = function(node){
+								var parent = node.parentNode
+								if(parent === null){
+									// We've reached past the root document node
+									return false
+								}
+								else if(['A', 'TEXTAREA'].indexOf(parent.tagName) !== -1){
+									// Do not modify matching terms inside certain HTMl tags
+									return true
+								}
+								else{
+									return shouldSkip(parent)
+								}
+							}
 
-								var replaceString = "$1<a popup='<?=$i?>' href='javascript:void(0)' data-link-text='<?=htmlspecialchars($linkText)?>' style='" + style + "'>$2</a>$3"
-								var newContent = node.textContent.replace(findString, replaceString)
-								if(newContent != node.textContent && !shouldSkip(node)){
-									// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
-									$(node).before($('<span>' + newContent + '<span>'))
-									$(node).remove()
+							full_node_loop:
+							for(var i = 0; i < nodes.length; i++) {
+								var node;
+								var nodeIterator = nodes[i];
+								while(node = nodeIterator.nextNode()){
+									// We force the font size to match the original text to get around the REDCap behavior where link font size changes on hover (on surveys).
+									var fontSize = $(node.parentNode).css('font-size')
 
-									if(firstMatchOnly){
-										// Break out of the outer loop to stop replacing this term.
-										break full_node_loop;
+									var style = 'font-size: ' + fontSize
+
+									<?php if(!empty($linkColor)) { ?>
+										style += '; color: <?=$linkColor?>'
+									<?php } ?>
+
+									var flags = "i"
+									if(!firstMatchOnly){
+										flags += 'g'
+									}
+
+									var findString = new RegExp("([^a-zA-Z]|^)(<?=preg_quote($linkText)?>)([^a-zA-Z]|$)", flags)
+
+									var replaceString = "$1<a popup='<?=$i?>' href='javascript:void(0)' data-link-text='<?=htmlspecialchars($linkText)?>' style='" + style + "'>$2</a>$3"
+									var newContent = node.textContent.replace(findString, replaceString)
+									if(newContent != node.textContent && !shouldSkip(node)){
+										// Insert before, then remove.  Using replaceWith() or inserting after causes an infinite loop.
+										$(node).before($('<span>' + newContent + '<span>'))
+										$(node).remove()
+
+										if(firstMatchOnly){
+											// Break out of the outer loop to stop replacing this term.
+											break full_node_loop;
+										}
 									}
 								}
 							}
-						}
+						})
 					})
 				</script>
 				<?php
@@ -213,6 +234,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		?>
 		<script>
 			$(function(){
+				var module = <?=$this->framework->getJavascriptModuleObjectName()?>;
 				var log = function(message, linkText, popupIndex){
 					var data = {
 						'link text': linkText
@@ -222,89 +244,101 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						data['popup index'] = popupIndex
 					}
 
-					if(<?=json_encode($loggingSupported)?>){
-						ExternalModules.Vanderbilt.InlinePopupExternalModule.log(message, data)
-					}
+					module.log(message, data)
 				}
 
-				$('a[popup]').each(function(popupIndex) {
-					var link = this
-					var linkText = $(link).data('link-text')
-
-					tippy(link, {
-						html: '#inline-popup-content-' + $(this).attr('popup'),
-						trigger: 'mouseenter',
-//						trigger: 'click',
-						hideOnClick: false,
-						theme: 'light inline-popups',
-						arrow: true,
-						interactive: true,
-						onShow: function(){
-							log('popup opened', linkText, popupIndex)
-						},
-						onHide: function(){
-							log('popup closed', linkText, popupIndex)
-						}
+				var setup = function(){
+					module.initializers.forEach(function(initializer){
+						initializer()
 					})
-				})
 
-				var listenButtonSelector = '.inline-popup-content-inner a.pronunciation-audio';
-				var filenames = {}
+					$('a[popup]').each(function(popupIndex) {
+						var link = this
+						var linkText = $(link).data('link-text')
 
-				$(listenButtonSelector).each(function(){
-					var popupInner = $(this).closest('.inline-popup-content-inner')
-					var linkText = popupInner.data('link-text')
-					$.get(<?=json_encode($this->getUrl('get-audio-filename.php'))?> + '&NOAUTH&word=' + linkText, function(response){
-						if(response.filename){
-							filenames[linkText] = response.filename
-						}
-						else{
-							console.log(response)
-						}
+						tippy(link, {
+							html: '#inline-popup-content-' + $(this).attr('popup'),
+							trigger: 'mouseenter',
+	//						trigger: 'click',
+							hideOnClick: false,
+							theme: 'light inline-popups',
+							arrow: true,
+							interactive: true,
+							onShow: function(){
+								log('popup opened', linkText, popupIndex)
+							},
+							onHide: function(){
+								log('popup closed', linkText, popupIndex)
+							}
+						})
 					})
-				})
+				}
 
-				$(document).on('click', listenButtonSelector, function(e){
-					e.preventDefault()
+				module.afterMultiLanguageInitialized(function(){
+					setup()
 
-					var popupInner = $(this).closest('.inline-popup-content-inner')
-					var linkText = popupInner.data('link-text')
-					var useOddcast = popupInner.data('use-oddcast')
+					// We have to set them up again whenever the language changes, on both surveys and data entry forms.
+					$(document).on('click', '.mlm-switcher button', setup)
+					$(document).on('click', '#LanguageDropDownDiv a', setup)					
 
-					log('listen button clicked', linkText)
+					var listenButtonSelector = '.inline-popup-content-inner a.pronunciation-audio';
+					var filenames = {}
 
-					if(useOddcast && window.OddcastAvatarExternalModule && OddcastAvatarExternalModule.isEnabled()){
-						OddcastAvatarExternalModule.sayText(linkText)
-					}
-					else{
-						var filename = filenames[linkText]
-						if(filename){
-							var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
-
-							// This IE code was copied from here: https://stackoverflow.com/questions/39354085/how-to-play-wav-files-on-ie
-							if(/msie/i.test(navigator.userAgent) || /trident/i.test(navigator.userAgent)){
-								var origPlayer = document.getElementById('currentWavPlayer');
-								if(origPlayer){
-									origPlayer.src = '';
-									origPlayer.outerHtml = '';
-									document.body.removeChild(origPlayer);
-									delete origPlayer;
-								}
-								var newPlayer = document.createElement('bgsound');
-								newPlayer.setAttribute('id', 'currentWavPlayer');
-								newPlayer.setAttribute('src', url);
-								document.body.appendChild(newPlayer);
+					$(listenButtonSelector).each(function(){
+						var popupInner = $(this).closest('.inline-popup-content-inner')
+						var linkText = popupInner.data('link-text')
+						$.get(<?=json_encode($this->getUrl('get-audio-filename.php'))?> + '&NOAUTH&word=' + linkText, function(response){
+							if(response.filename){
+								filenames[linkText] = response.filename
 							}
 							else{
-								var audio = $('<audio src="' + url + '">')
-								$('body').append(audio) // Chrome seems to require the element to be added to the DOM before we can play it.
-								audio[0].play()
+								console.log(response)
 							}
+						})
+					})
+
+					$(document).on('click', listenButtonSelector, function(e){
+						e.preventDefault()
+
+						var popupInner = $(this).closest('.inline-popup-content-inner')
+						var linkText = popupInner.data('link-text')
+						var useOddcast = popupInner.data('use-oddcast')
+
+						log('listen button clicked', linkText)
+
+						if(useOddcast && window.OddcastAvatarExternalModule && OddcastAvatarExternalModule.isEnabled()){
+							OddcastAvatarExternalModule.sayText(linkText)
 						}
 						else{
-							alert("The audio could not be played.  Please report this issue and/or check the console log for errors.")
+							var filename = filenames[linkText]
+							if(filename){
+								var url = 'http://media.merriam-webster.com/soundc11/' + filename[0] + '/' + filename
+
+								// This IE code was copied from here: https://stackoverflow.com/questions/39354085/how-to-play-wav-files-on-ie
+								if(/msie/i.test(navigator.userAgent) || /trident/i.test(navigator.userAgent)){
+									var origPlayer = document.getElementById('currentWavPlayer');
+									if(origPlayer){
+										origPlayer.src = '';
+										origPlayer.outerHtml = '';
+										document.body.removeChild(origPlayer);
+										delete origPlayer;
+									}
+									var newPlayer = document.createElement('bgsound');
+									newPlayer.setAttribute('id', 'currentWavPlayer');
+									newPlayer.setAttribute('src', url);
+									document.body.appendChild(newPlayer);
+								}
+								else{
+									var audio = $('<audio src="' + url + '">')
+									$('body').append(audio) // Chrome seems to require the element to be added to the DOM before we can play it.
+									audio[0].play()
+								}
+							}
+							else{
+								alert("The audio could not be played.  Please report this issue and/or check the console log for errors.")
+							}
 						}
-					}
+					})
 				})
 			})
 		</script>

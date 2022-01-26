@@ -3,6 +3,8 @@
 
 	"namespace": "Vanderbilt\\InlinePopupExternalModule",
 
+	"framework-version": 2,
+
 	"authors": [
 		{
 			"name": "Mark McEver",
