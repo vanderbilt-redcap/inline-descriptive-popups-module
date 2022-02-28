@@ -89,7 +89,16 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						||
 						REDCap.MultiLanguage === undefined
 						||
-						REDCap.MultiLanguage.initialized
+						(
+							REDCap.MultiLanguage.initialized // briefly the correct approach for a few REDCap versions
+							||
+							(
+								REDCap.MultiLanguage.isInitialized
+								&&
+								REDCap.MultiLanguage.isInitialized() // the correct approach going forward
+							)
+						)
+						
 					){
 						action()
 					}
