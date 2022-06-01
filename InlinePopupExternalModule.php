@@ -265,6 +265,16 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 						var link = this
 						var linkText = $(link).data('link-text')
 
+						$(link).click((e) => {
+							const enhancedChoice = e.target.closest('.enhancedchoice')
+							if(enhancedChoice){
+								// Clicking popups inside enhanced choice options requires a little extra help to select the option.
+								enhancedChoice.querySelector('label').click()
+							}
+
+							return false
+						})
+
 						tippy(link, {
 							html: '#inline-popup-content-' + $(this).attr('popup'),
 							trigger: 'mouseenter',
