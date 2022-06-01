@@ -396,6 +396,11 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			return file_get_contents($path);
 		}
 
+		/**
+		 * Avoid injection vulnerabilities in error messages.
+		 */
+		$word = htmlentities($word, ENT_QUOTES);
+
 		foreach([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
 			$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . $dictionaryType . "/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
 
