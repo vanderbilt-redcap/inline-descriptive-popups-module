@@ -20,6 +20,10 @@
 
 	"description": "Allows users to specify words or phrases on a form/survey to appear as a highlighted link that will display a popup of instructive text when the cursor moves over the word/phrase. The configuration allows multiple words/phrases to be utilized.",
 
+	"enable-ajax-logging": true,
+
+	"enable-no-auth-logging": true,
+
 	"no-auth-pages": [
 		"get-audio-filename"
 	],
