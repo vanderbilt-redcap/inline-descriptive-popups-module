@@ -124,8 +124,8 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$firstMatchOnlyFlag = $linkSettings['first-match-only'];
 			$audioFlag = $linkSettings['show-pronunciation-audio'];
 			$oddcastFlag = $linkSettings['use-oddcast'];
-			$forms = $linkSettings['forms'];
-			$pageNumbers = $linkSettings['page-numbers'];
+			$forms = $linkSettings['forms'] ?? [];
+			$pageNumbers = $linkSettings['page-numbers'] ?? [];
 
 			// Remove the empty string default values.
 			$forms = array_filter($forms);
