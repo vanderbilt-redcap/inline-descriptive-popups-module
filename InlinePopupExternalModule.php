@@ -365,6 +365,11 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	}
 
 	public function validateSettings($settings){
+		if($this->getProjectId() === null){
+			// We're saving system settings
+			return null;
+		}
+
 		$terms = $settings['link-text'];
 		$audioFlags = $settings['show-pronunciation-audio'];
 		$oddcastFlags = $settings['use-oddcast'];
