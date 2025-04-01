@@ -31,10 +31,9 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 	function includeSharedCode($project_id, $record, $instrument, $enabledSettingName) {
 		$this->initializeJavascriptModuleObject();
 		?>
-		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/tippy.css" integrity="sha384-wSlyG10EXV8zWqE9v9lzWCfOPiVQB5p5/9xT/zfpYn4yxqLooKBko44huGddKjAT" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.2.2/dist/themes/light.css" integrity="sha384-L67GFzFvXzI/emFX7zfRPrrglAGTl08iybyk/gP2LdDEaY77xQ2GwBjiUglPhEQw" crossorigin="anonymous">
-		<script src="https://unpkg.com/tippy.js@2.2.2/dist/tippy.all.min.js" integrity="sha384-PZHY4QRH2Yg34/USJTSmg+oXlrrxxxOHITDLz+TERu3KS9JbUpnsp0JrhT/F1Hmc" crossorigin="anonymous"></script>
-
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/2.2.2/tippy.css" integrity="sha512-LuYufJlyTVvLIIRajTn4Q6x7Q7dXHGkY1fqxufU0ddqNpneKZ53AycO2WNh2Uhh3IGernZyhrvzh9zDNxOpxYg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/2.2.2/themes/light.css" integrity="sha512-pHZ4Ml9vZuOvQQVXvt3xeLLfF5E+axs3BUAjoh7SuEvE45y92pxBIn7e3LYeOC9nyKXjY/NsOl2DscqRk6q/dA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/2.2.2/tippy.all.min.js" integrity="sha512-3b/o1nanVKJyVhsAET5kKOQRpgkAxxhD8Ybh5O1L0KlfuWEuQJC1ZVNu4jiXV7ZUpngQSvQZADiB9hpkR+r9Bw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		<style>
 			.tippy-popper{
 				outline: 0;
