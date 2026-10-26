@@ -408,7 +408,9 @@ class InlinePopupExternalModule extends AbstractExternalModule
 		foreach ([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
 			$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . $dictionaryType . "/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
 
-			$response = simplexml_load_string(file_get_contents($dictionaryApiLink));
+			$client   = new \GuzzleHttp\Client();
+			$response = $client->request('GET', $dictionaryApiLink);
+			$response = simplexml_load_string($response->getBody());
 
 			$entry = @$response->entry;
 			$wordFromEntry = @$entry->ew;
