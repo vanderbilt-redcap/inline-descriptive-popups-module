@@ -1,4 +1,5 @@
 <?php
+
 $word = $_GET['word'];
 
 header('Content-type: application/json');

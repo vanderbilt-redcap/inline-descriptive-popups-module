@@ -18,17 +18,17 @@ const DICTIONARY_TYPE = 'medical/v2';
 const BACKUP_API_KEY = 'f0898fcd-04a9-44f9-82a3-08af614d31e9';
 const BACKUP_DICTIONARY_TYPE = 'collegiate/v1';
 
-class InlinePopupExternalModule extends AbstractExternalModule {
-
-	function hook_data_entry_form($project_id, $record, $instrument) {
+class InlinePopupExternalModule extends AbstractExternalModule
+{
+	public function hook_data_entry_form($project_id, $record, $instrument) {
 		$this->includeSharedCode($project_id, $record, $instrument, 'on-data-entry-forms');
 	}
 
-	function hook_survey_page($project_id, $record, $instrument) {
+	public function hook_survey_page($project_id, $record, $instrument) {
 		$this->includeSharedCode($project_id, $record, $instrument, 'on-surveys');
 	}
 
-	function includeSharedCode($project_id, $record, $instrument, $enabledSettingName) {
+	public function includeSharedCode($project_id, $record, $instrument, $enabledSettingName) {
 		$this->initializeJavascriptModuleObject();
 		?>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/2.2.2/tippy.css" integrity="sha512-LuYufJlyTVvLIIRajTn4Q6x7Q7dXHGkY1fqxufU0ddqNpneKZ53AycO2WNh2Uhh3IGernZyhrvzh9zDNxOpxYg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -113,7 +113,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 		$linkColor = $this->getProjectSetting('link-color');
 		$subSettings = $this->getSubSettings('field');
-		for($i=0; $i<count($subSettings); $i++){
+		for ($i = 0; $i < count($subSettings); $i++) {
 			$linkSettings = $subSettings[$i];
 
 			// We make the following lower case so that dictionary requests work properly.
@@ -135,15 +135,15 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$matchesForm = empty($forms) || in_array($instrument, $forms);
 			$matchesPageNumber = empty($pageNumbers) || in_array($currentPageNumber, $pageNumbers);
 
-			if($enabledFlag != 1 || !$matchesForm || !$matchesPageNumber){
+			if ($enabledFlag != 1 || !$matchesForm || !$matchesPageNumber) {
 				continue;
 			}
 
-			if($audioFlag == 1){
+			if ($audioFlag == 1) {
 				$text .= "<div style='text-align: center'><a href='#' class='pronunciation-audio'>&#x1f50a; Listen</a></div>";
 			}
 
-			if(!empty($linkText) && !empty($text)) {
+			if (!empty($linkText) && !empty($text)) {
 				?>
 				<div id="inline-popup-content-<?=$i?>" style="display: none">
 					<div class="inline-popup-content-inner" data-link-text='<?=htmlspecialchars($linkText)?>' data-use-oddcast='<?=$oddcastFlag?>'>
@@ -207,7 +207,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 
 									var style = 'font-size: ' + fontSize
 
-									<?php if(!empty($linkColor)) { ?>
+									<?php if (!empty($linkColor)) { ?>
 										style += '; color: <?=$linkColor?>'
 									<?php } ?>
 
@@ -363,8 +363,8 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		<?php
 	}
 
-	public function validateSettings($settings){
-		if($this->getProjectId() === null){
+	public function validateSettings($settings) {
+		if ($this->getProjectId() === null) {
 			// We're saving system settings
 			return null;
 		}
@@ -374,15 +374,15 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		$oddcastFlags = $settings['use-oddcast'];
 
 		$errorMessages = [];
-		for($i=0;$i<count($terms);$i++){
+		for ($i = 0;$i < count($terms);$i++) {
 			$term = $terms[$i];
 			$audioFlag = $audioFlags[$i];
 			$oddcastFlag = $oddcastFlags[$i];
 
-			if($audioFlag && !$oddcastFlag){
+			if ($audioFlag && !$oddcastFlag) {
 				$response = json_decode($this->getDictionaryResponse($term), true);
 				$error = @$response['error'];
-				if($error){
+				if ($error) {
 					$errorMessages[] = $error;
 				}
 			}
@@ -391,12 +391,12 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		return implode("\n", $errorMessages);
 	}
 
-	public function getDictionaryResponse($word){
+	public function getDictionaryResponse($word) {
 		$dir = sys_get_temp_dir() . "/dictionary-audio-url-cache/";
 
 		// We encode the word as an easy way to prevent malicious parameters.
 		$path = $dir . md5($word);
-		if(file_exists($path)){
+		if (file_exists($path)) {
 			return file_get_contents($path);
 		}
 
@@ -405,7 +405,7 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 		 */
 		$word = htmlentities($word, ENT_QUOTES);
 
-		foreach([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
+		foreach ([DICTIONARY_TYPE => API_KEY,BACKUP_DICTIONARY_TYPE => BACKUP_API_KEY] as $dictionaryType => $apiKey) {
 			$dictionaryApiLink = "http://www.dictionaryapi.com/api/references/" . $dictionaryType . "/xml/" . urlencode($word) . "?key=" . urlencode($apiKey);
 
 			$response = simplexml_load_string(file_get_contents($dictionaryApiLink));
@@ -414,51 +414,51 @@ class InlinePopupExternalModule extends AbstractExternalModule {
 			$wordFromEntry = @$entry->ew;
 			$errorMessage = null;
 
-			if(!$wordFromEntry){
+			if (!$wordFromEntry) {
 				$errorMessage = "Pronunciation audio for the term '$word' could not be found.";
 				$suggestions = @$response->suggestion;
-				if($suggestions){
+				if ($suggestions) {
 					$errorMessage .= "  Here is the list of suggestions:\n\n";
-					foreach($suggestions as $suggestion){
+					foreach ($suggestions as $suggestion) {
 						$errorMessage .= $suggestion . "\n";
 					}
 				}
 			}
-	//		else if($entry->ew != $word){
-	//			$errorMessage = "Could not find an exact match for '$word'.  The closest entry was '{$entry->ew}'.";
-	//		}
+			//		else if($entry->ew != $word){
+			//			$errorMessage = "Could not find an exact match for '$word'.  The closest entry was '{$entry->ew}'.";
+			//		}
 
 			## If a term is found in the medical dictionary, don't bother checking the collegiate dictionary
-			if(!$errorMessage) break;
+			if (!$errorMessage) {
+				break;
+			}
 		}
 
-		if($errorMessage){
+		if ($errorMessage) {
 			$response = ['error' => $errorMessage];
-		}
-		else{
+		} else {
 			$wav = @$entry->vr->sound->wav; // Ex: "dyspnea"
 
-			if(!$wav){
+			if (!$wav) {
 				$wav = @$entry->uro->sound->wav;
 			}
 
-			if(!$wav){
+			if (!$wav) {
 				$wav = $entry->sound->wav; // Ex: "shampoo"
 			}
 
-			if(!$wav) {
+			if (!$wav) {
 				$response = [
 					'error' => "Could not find audio for the term '$word'.  Please check the response in the browser console in case the filename is in an unexpected location.",
 					'response' => $entry
 				];
-			}
-			else{
+			} else {
 				$response = ['filename' => $wav->__toString()];
 			}
 		}
 
 		$response = json_encode($response);
-		
+
 		file_put_contents($path, $response);
 
 		return $response;
